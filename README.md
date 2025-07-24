@@ -46,5 +46,24 @@ _mailpubkey.alice.example.com. IN TXT "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0
     
 -   **All fields are optional except `v`, `pk`, and `alg`.**
 
+### **Parsing and Extensibility**
+
+-   Parse on `;`, then split on `=`.
+    
+-   Ignore unknown fields for future compatibility.
+    
+-   For multi-valued fields (if needed), comma-separate values, or repeat keys.
+    
+
+* * *
+
+### **Example (shown by `dig`)**
+
+```shell
+dig +short TXT _mailpubkey.alice.example.com "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;exp=2026-01-01;usr=alice@company.com;pv=mailnite;"
+```
+
+* * *
+
 
 
