@@ -35,3 +35,16 @@ With signature and encryption:
 ```
 _mailpubkey.alice.example.com. IN TXT "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;exp=2026-01-01;usr=alice@company.com;pv=mailnite;enc=aes256gcm;sig=MEUCIQDv4uHKsThvX...;"
 ```
+
+### **Field Notes**
+
+-   **pk**: Must be a Base64-URL-safe string (A–Z, a–z, 0–9, `-`, `_`), no padding.
+    
+-   **pv**: Allows clients and services to recognize if additional features or protocols are supported for the user (e.g., commercial, paid, or custom mail relay).
+    
+-   **usr/id**: Use as needed for integration with external systems.
+    
+-   **All fields are optional except `v`, `pk`, and `alg`.**
+
+
+
