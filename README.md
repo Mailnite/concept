@@ -194,5 +194,25 @@ dig +short TXT _mailpubkey.alice.example.com "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BK
 | Zone file size             | MBs (varies)         | Practical management limit          |
 
 
+* * *
+
+# Encrypted Email
+
+### **Proposed Fields**
+
+**Headers in output file:**
+
+```makefile
+To: recipient@example.com
+Subject: [Enc] Confidential update
+X-ECIES-EphemeralPK: <base64-ephemeral-pubkey>
+X-ECIES-Nonce: <base64-nonce>
+X-ECIES-Alg: ecies-aesgcm
+X-ECIES-Version: 1 Content-Type: text/plain; charset=utf-8
+```
+
+**Body:**  
+Base64-encoded ciphertext
+
 
 
