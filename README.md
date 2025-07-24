@@ -85,30 +85,31 @@ Semicolon-delimited key-value pairs, with your requested fields:
 | `v`   | Yes      | `v=1`                                             | Version of the record format.                                                   |
 | `pk`  | Yes      | `pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J` | Public key in URL-safe Base64 (no padding).                                     |
 | `alg` | Yes      | `alg=secp256k1`                                   | Key algorithm (`secp256k1`, `ed25519`, etc).                                    |
-| `exp` | Optional | `exp=2026-01-01`                                  | Expiry date for key rotation (ISO 8601, UTC).                                   |
-| `usr` | Optional | `usr=alice`                                       | External user identifier, e.g., federated ID or email.                          |
-| `id`  | Optional | `id=external-id-123`                              | Opaque external/user ID for mapping/accounting.                                 |
-| `pv`  | Optional | `pv=mailnite`                                     | **Provider** identifier (e.g., for commercial service, feature set, or wallet). |
-| `sig` | Optional | `sig=MEUCIQDv4uHKsThvX...`                        | Signature over the record (Base64/DER, optional).                               |
-| `enc` | Optional | `enc=aes256gcm`                                   | Preferred content encryption algorithm.                                         |
+| `usr` | Optional | `usr=alice`                                       | External user/account identifier, e.g., federated ID or email.                  |
+| `id`  | Optional | `id=key-id-123`                                   | Opaque external key ID for mapping/accounting.                                  |
+| `iss` | Optional | `iss=https://iss.mailnite.com`                    | **Provider** URL (e.g., for commercial service, feature set, or wallet).        |
+| `enc` | Optional | `enc=aes256gcm`                                   | Preferred content encryption algorithm. Default=aes256gcm                       |
 
 Example Records
-With usr and pv:
+Minimal:
 
 ```perl
-_mailpubkey.alice.example.com. IN TXT "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;exp=2026-01-01;usr=alice@company.com;pv=mailnite;"
+_mailpubkey.alice.example.com. IN TXT "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;"
 ```
 
-With id and pv:
+With usr and iss:
 
 ```perl
-_mailpubkey.alice.example.com. IN TXT "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;exp=2026-01-01;id=42b519d0-0f6a-43ba-9ef8-8725f7c1bc98;pv=mailnite;"
+_mailpubkey.alice.example.com. IN TXT "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;usr=alice@company.com;iss=https://iss.mailnite.com;"
 ```
 
-With signature and encryption:
+With id and iss:
+
+```perl
+_mailpubkey.alice.example.com. IN TXT "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;id=42b519d0-0f6a-43ba-9ef8-8725f7c1bc98;iss=https://iss.mailnite.com;"
 ```
-_mailpubkey.alice.example.com. IN TXT "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;exp=2026-01-01;usr=alice@company.com;pv=mailnite;enc=aes256gcm;sig=MEUCIQDv4uHKsThvX...;"
-```
+
+For the `secp256k1` key exhange algprithm we automatically select `aes256gcm` as default encryption algorithm.
 
 * * *
 
@@ -116,7 +117,7 @@ _mailpubkey.alice.example.com. IN TXT "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0
 
 -   **pk**: Must be a Base64-URL-safe string (A–Z, a–z, 0–9, `-`, `_`), no padding.
     
--   **pv**: Allows clients and services to recognize if additional features or protocols are supported for the user (e.g., commercial, paid, or custom mail relay).
+-   **iss**: Allows clients and services to build cloud services with additional features or protocols (e.g., commercial, paid, or custom mail relay).
     
 -   **usr/id**: Use as needed for integration with external systems.
     
