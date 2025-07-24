@@ -1,20 +1,70 @@
 # concept
+
 Concept of the encrypted and protected emails for Internet
 
+Mailnite provides for free two servers:
+* SMTP server that encrypts traffic automatically (could be used as relay).
+* POP/IMAP server that decrypts traffic automatically.
+
+## **Sample Workflow**
+
+1.  **Alice generates her keypair**, puts the pubkey (base64 or JWT) in DNS under  
+    `_mailpubkey.alice.domain.zone`.
+    
+2.  **Bob wants to email Alice securely**:
+    
+    -   Looks up DNS record to get pubkey.
+        
+    -   Uses plugin to encrypt content.
+        
+    -   Sends to `alice@domain.zone` or `alice+key@domain.zone`. If there is a key equal the username then it would be used first.
+  
+    -   Several users can share the same <key>. For example alice.zeta@domain.zone and alice@domain.zone.
+        
+3.  **Alice’s client/plugin** sees encrypted mail, uses her private key to decrypt and display.
+
+* * *
 
 ## **DNS TXT Record Format for Next-Gen Email Public Key**
 
+The <key> notation of the record is TXT DNS record safe and can not have system characters.
+For example if you have an email <alice.zeta@domain.zone> and also <alice@domain.zone> it would be reasonable to
+use common `key=alice`.
+
+So the protected inbox emails could be
+```
+alice@domain.zone
+alice.zeta+alice@domain.zone
+```
+
+Whereas the `key` field in TXT record should be equal to `alice`.
+
+Another case if you have organization or prefer to keep user names hidden from DNS scans.
+You can use for the <key> common identifier for the all users `enc` or any other common name.
+
+So the protected inbox emails could be
+```
+alice+enc@domain.zone
+alice.zeta+enc@domain.zone
+```
+
+Whereas the `key` field in TXT record should be equal to `key`.
+
+Mailnite provides the POP/IMAP server component for free that decrypts the traffic automatically.
+
+
 ### **Record Name (RR Name)**
 
-php-template
+```
+_mailpubkey.<key>.<domain>.
+```
 
-CopyEdit
+_Example:_
+```
+_mailpubkey.alice.example.com.
+```
 
-`_mailpubkey.<user>.<domain>.`
-
-_Example:_  
-`_mailpubkey.alice.example.com.`
-
+* * *
 
 ### **Record Value (TXT Content)**
 
@@ -26,7 +76,7 @@ Semicolon-delimited key-value pairs, with your requested fields:
 | `pk`  | Yes      | `pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J` | Public key in URL-safe Base64 (no padding).                                     |
 | `alg` | Yes      | `alg=secp256k1`                                   | Key algorithm (`secp256k1`, `ed25519`, etc).                                    |
 | `exp` | Optional | `exp=2026-01-01`                                  | Expiry date for key rotation (ISO 8601, UTC).                                   |
-| `usr` | Optional | `usr=alice@company.com`                           | External user identifier, e.g., federated ID or email.                          |
+| `usr` | Optional | `usr=alice`                                       | External user identifier, e.g., federated ID or email.                          |
 | `id`  | Optional | `id=external-id-123`                              | Opaque external/user ID for mapping/accounting.                                 |
 | `pv`  | Optional | `pv=mailnite`                                     | **Provider** identifier (e.g., for commercial service, feature set, or wallet). |
 | `sig` | Optional | `sig=MEUCIQDv4uHKsThvX...`                        | Signature over the record (Base64/DER, optional).                               |
@@ -49,6 +99,8 @@ With signature and encryption:
 ```
 _mailpubkey.alice.example.com. IN TXT "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;exp=2026-01-01;usr=alice@company.com;pv=mailnite;enc=aes256gcm;sig=MEUCIQDv4uHKsThvX...;"
 ```
+
+* * *
 
 ### **Field Notes**
 
@@ -76,6 +128,48 @@ _mailpubkey.alice.example.com. IN TXT "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0
 ```shell
 dig +short TXT _mailpubkey.alice.example.com "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;exp=2026-01-01;usr=alice@company.com;pv=mailnite;"
 ```
+
+* * *
+
+### **Field Notes**
+
+-   **pk**: Should be 44 chars (for 33 bytes, unpadded) or 43-44 chars depending on encoding. If using unpadded URL-safe base64:  
+    e.g., 33 bytes (secp256k1 pubkey) → 44 base64 chars with padding (`=`), or 43 chars unpadded.
+    
+-   **user/id**: Use one as best fits your use case. Both can be supported for flexibility.
+    
+-   **sig**: Base64 encoded, typically DER format for ECDSA signatures.
+    
+-   **TXT limitations**: Each string is up to 255 bytes; use multiple strings if needed.
+    
+
+* * *
+
+### **Field Notes**
+
+-   **pk**: Should be 44 chars (for 33 bytes, unpadded) or 43-44 chars depending on encoding. If using unpadded URL-safe base64:  
+    e.g., 33 bytes (secp256k1 pubkey) → 44 base64 chars with padding (`=`), or 43 chars unpadded.
+    
+-   **usr/id**: Use one as best fits your use case. Both can be supported for flexibility.
+    
+-   **sig**: Base64 encoded, typically DER format for ECDSA signatures for the provider `pv`.
+    
+-   **TXT limitations**: Each string is up to 255 bytes; use multiple strings if needed.
+
+* * *
+
+### **Client Processing**
+
+1.  **Query:** `_mailpubkey.<user>.<domain>.` (TXT)
+    
+2.  **Parse** key-value pairs (split on `;`), ignore unknown fields for forward compatibility.
+    
+3.  **Extract** `pk`, decode from Base64 URL Safe version to bytes.
+    
+5.  **Verify** fields as needed (`exp`, `pv`, `sig`, etc).
+    
+6.  **Map** `usr` or `id` field for UI or account mapping.
+
 
 * * *
 
