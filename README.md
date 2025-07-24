@@ -2,6 +2,20 @@
 Concept of the encrypted and protected emails for Internet
 
 
+## **DNS TXT Record Format for Next-Gen Email Public Key**
+
+### **Record Name (RR Name)**
+
+php-template
+
+CopyEdit
+
+`_mailpubkey.<user>.<domain>.`
+
+_Example:_  
+`_mailpubkey.alice.example.com.`
+
+
 ### **Record Value (TXT Content)**
 
 Semicolon-delimited key-value pairs, with your requested fields:
