@@ -183,5 +183,16 @@ dig +short TXT _mailpubkey.alice.example.com "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BK
 
 * * *
 
+### DNS limits
+
+| Limitation                 | Value (Typical)      | Notes                               |
+| -------------------------- | -------------------- | ----------------------------------- |
+| DNS protocol (theoretical) | No explicit max      | Bounded by practical limits         |
+| Cloudflare Free            | \~3,500 records/zone | (all record types, not just TXT)    |
+| AWS Route 53               | 10,000 records/zone  | (all types)                         |
+| Per TXT string             | 255 bytes            | Multiple strings per record allowed |
+| Zone file size             | MBs (varies)         | Practical management limit          |
+
+
 
 
