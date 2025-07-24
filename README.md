@@ -9,6 +9,7 @@ Mailnite provides for free two servers:
 For commercial license Mailnite provides the Kubernetes solution:
 * SMTP server that encrypts traffic automatically (enterprise scalable version).
 * POP/IMAP server that decrypts traffic automatically (enterprise scalable version).
+* Distributed DNS server for high load web-sites.
 * Web UI Interface for the email.
 
 For mobile users Mailnite provides applications:
