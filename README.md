@@ -137,7 +137,7 @@ For the `secp256k1` key exhange algprithm we automatically select `aes256gcm` as
 ### **Example (shown by `dig`)**
 
 ```shell
-dig +short TXT _mailpubkey.alice.example.com "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;exp=2026-01-01;usr=alice@company.com;pv=mailnite;"
+dig +short TXT _mailpubkey.alice.example.com "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BKOJkJsG0-Lbox7u27J;alg=secp256k1;usr=alice@company.com;iss=https://iss.mailnite.com;"
 ```
 
 * * *
@@ -206,15 +206,53 @@ dig +short TXT _mailpubkey.alice.example.com "v=1;pk=BzowchszhjIBqUCDj4wrsysO6BK
 ```makefile
 To: recipient@example.com
 Subject: [Enc] Confidential update
-X-ECIES-EphemeralPK: <base64-ephemeral-pubkey>
-X-ECIES-Nonce: <base64-nonce>
-X-ECIES-Alg: ecies-aesgcm
-X-ECIES-Version: 1
 Content-Type: text/plain; charset=utf-8
 ```
 
 **Body:**  
 Base64-encoded ciphertext
+
+## RLP Envelope Structure (as ordered list)
+
+| Index | Field        | Required    | Description                                                 |
+| ----- | ------------ | ----------- | ----------------------------------------------------------- |
+| 0     | `version`    | ✅           | Envelope version (e.g. `1`)                                 |
+| 1     | `alg`        | ✅           | Recipient ECIES key algorithm (e.g. `secp256k1`)            |
+| 2     | `enc`        | ✅           | Symmetric encryption algorithm (e.g. `aes256gcm`)           |
+| 3     | `eph_pk`     | ✅           | Ephemeral public key used for ECIES                         |
+| 4     | `nonce`      | ✅           | Nonce for symmetric encryption                              |
+| 5     | `usr`        | ✅           | Recipient user/account identifier (email)                   |
+| 6     | `id`         | ✅           | Key ID or fingerprint of recipient public key               |
+| 7     | `iss`        | ✅           | Issuer/provider URL (e.g. `https://iss.mailnite.com`)       |
+| 8     | `ct`         | ✅           | Ciphertext (encrypted payload)                              |
+| 9     | `sender_alg` | ⛔️ Optional | Sender's public key algorithm (e.g. `secp256k1`, `ed25519`) |
+| 10    | `sender_pk`  | ⛔️ Optional | Sender’s public key used to verify signature                |
+| 11    | `sender_sig` | ⛔️ Optional | Signature over fields `[0..8]` (to prove sender)            |
+
+
+## 🔧 RLP Python Encoding Template (with padding for optional fields)
+
+```python
+import rlp
+
+envelope = [
+    1,                          # version
+    b"secp256k1",               # alg
+    b"aes256gcm",               # enc
+    eph_pk_bytes,               # ephemeral public key
+    nonce_bytes,                # nonce
+    usr.encode(),               # usr (recipient identifier)
+    key_id_bytes,               # id (recipient key fingerprint)
+    iss.encode(),               # iss (issuer/provider)
+    ciphertext_bytes,           # ct (encrypted payload)
+    sender_alg.encode() if sender_alg else b"",
+    sender_pk_bytes if sender_pk_bytes else b"",
+    sender_sig_bytes if sender_sig_bytes else b"",
+]
+
+rlp_bytes = rlp.encode(envelope)
+```
+
 
 
 
