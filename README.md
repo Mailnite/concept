@@ -208,7 +208,8 @@ Subject: [Enc] Confidential update
 X-ECIES-EphemeralPK: <base64-ephemeral-pubkey>
 X-ECIES-Nonce: <base64-nonce>
 X-ECIES-Alg: ecies-aesgcm
-X-ECIES-Version: 1 Content-Type: text/plain; charset=utf-8
+X-ECIES-Version: 1
+Content-Type: text/plain; charset=utf-8
 ```
 
 **Body:**  
